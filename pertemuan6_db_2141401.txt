@@ -1,0 +1,36 @@
+//1 menampilkan data-data dengan 0 komentar
+DELIMITER &&  
+CREATE OR REPLACE PROCEDURE data_0_comment()  
+BEGIN  
+    SELECT tbl_scraping.`id`, tbl_scraping.`ig_username`, tbl_scraping.`url`, tbl_scraping.`comment_count` 
+    FROM tbl_scraping WHERE comment_count = 0;    
+END &&  
+DELIMITER ;
+
+//pemanggilan
+CALL data_0_comment()
+
+//2 menampilkan berapa lama postingan tersebut dipost
+DELIMITER //
+CREATE FUNCTION brp_lama_posting(date1 DATE) RETURNS INT DETERMINISTIC
+BEGIN
+ DECLARE date2 DATE;
+  SELECT CURRENT_DATE()INTO date2;
+  RETURN (TO_DAYS(date2)-TO_DAYS(date1));
+END 
+//
+DELIMITER ;
+
+//pemanggilan
+SELECT id, ig_username, url, like_count, comment_count, (brp_lama_posting(taken_at)) AS lama_posting_dalam_hari
+FROM tbl_scraping
+
+//3 menghitung jumlah postingan di tahun 2020
+CREATE VIEW posting_pengguna_2022 AS
+SELECT ig_username, COUNT(ig_username) AS jml_postingan_di_2020
+FROM tbl_scraping
+WHERE taken_at BETWEEN '2020-01-01' AND '2021-01-01'
+GROUP BY ig_username
+
+//pemanggilan
+SELECT * FROM posting_pengguna_2020
